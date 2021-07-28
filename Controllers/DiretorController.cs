@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 public class DiretorController : ControllerBase
 {
     private readonly ApplicationDbContext _context; //Contexto intermediario para comunicação com o banco
-    public DiretorController(ApplicationDbContext context)
+    public DiretorController(ApplicationDbContext context) // Injeção de dependência -> pra construir um controller é necessario uma classe de contexto
     {
         _context = context;
     }
@@ -25,6 +25,33 @@ public class DiretorController : ControllerBase
     public async Task<List<Diretor>> Get()
     {
         return await _context.Diretores.ToListAsync();
+    }
+
+    [HttpGet("{id}")]
+    public async Task<ActionResult<Diretor>> Get(long id)
+    {
+        var diretor = await _context.Diretores.FirstOrDefaultAsync(diretor => diretor.Id == id);
+        return Ok(diretor); 
+    }
+
+    [HttpPut("{id}")]
+    public async Task<ActionResult<Diretor>> Put(long id, [FromBody] Diretor diretor){
+       
+        diretor.Id = id; 
+        _context.Diretores.Update(diretor);
+        await _context.SaveChangesAsync();
+       
+        return Ok(diretor);
+    
+    }
+
+    public async Task<ActionResult<Diretor>> Delete(long id){
+        
+        var diretor = await _context.Diretores.FirstOrDefaultAsync(diretor => diretor.Id == id);
+        _context.Remove(diretor);
+        await _context.SaveChangesAsync();
+
+        return Ok(diretor);
     }
 
 
