@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -20,88 +21,138 @@ namespace WebAPIDotNet.Controllers
         [HttpPost] //POST -> api/diretores
         public async Task<ActionResult<DiretorOutputPostDTO>> Post([FromBody] DiretorInputPostDTO diretorInputPostDto) // [FromBody] - Vem do corpo da requisição  
         {
-            if (diretorInputPostDto.Nome == "") //TEMPORÁRIO
+            try
             {
-                return NotFound("O nome do diretor é obrigatório.");
+                if (diretorInputPostDto.Nome == "") //TEMPORÁRIO
+                {
+                    return NotFound("O nome do diretor é obrigatório.");
+                }
+                else if (diretorInputPostDto.Email == "")
+                {
+                    return NotFound("O email do diretor é obrigatório.");
+                }
+
+                var diretor = new Diretor(diretorInputPostDto.Nome, diretorInputPostDto.Email);
+                await _context.Diretores.AddAsync(diretor);
+                await _context.SaveChangesAsync();
+                var diretorOutputPostDto = new DiretorOutputPostDTO(diretor.Id, diretor.Nome, diretor.Email);
+
+                return Ok(diretorOutputPostDto);
             }
-            else if (diretorInputPostDto.Email == "")
+            catch (Exception e)
             {
-                return NotFound("O email do diretor é obrigatório.");
+                return Conflict(e.Message);
             }
 
-            var diretor = new Diretor(diretorInputPostDto.Nome, diretorInputPostDto.Email);
-            await _context.Diretores.AddAsync(diretor);
-            await _context.SaveChangesAsync();
-            var diretorOutputPostDto = new DiretorOutputPostDTO(diretor.Id, diretor.Nome, diretor.Email);
 
-            return Ok(diretorOutputPostDto);
         }
 
         [HttpGet]
-        public async Task<List<Diretor>> Get() //Toda vez que for async tem que ter uma Task
+        public async Task<ActionResult<List<DiretorOutputGetAllDTO>>> Get() //Toda vez que for async tem que ter uma Task
         {
-            return await _context.Diretores.ToListAsync();
+            try
+            {
+                var diretores = await _context.Diretores.ToListAsync();
+                if (diretores == null)
+                {
+                    return NotFound("Diretores não encontrados");
+                }
+                var diretorOutputGetAllDto = new List<DiretorOutputGetAllDTO>();
+                foreach (Diretor diretor in diretores)
+                {
+                    diretorOutputGetAllDto.Add(new DiretorOutputGetAllDTO(diretor.Id, diretor.Nome, diretor.Email));
+                }
+                return diretorOutputGetAllDto;
+            }
+            catch (Exception e)
+            {
+                return Conflict(e.Message);
+            }
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Diretor>> Get(long id)
+        public async Task<ActionResult<DiretorOutputGetByIdDTO>> Get(long id)
         {
-            if (id == 0) //TEMPORÁRIO
+            try
             {
-                return NotFound("Id do diretor não pode ser 0.");
-            }
-            var diretor = await _context.Diretores.FirstOrDefaultAsync(diretor => diretor.Id == id);
+                if (id == 0) //TEMPORÁRIO
+                {
+                    return NotFound("Id do diretor não pode ser 0.");
+                }
 
-            return Ok(diretor);
+                var diretor = await _context.Diretores.FirstOrDefaultAsync(diretor => diretor.Id == id);
+                if (diretor == null)
+                {
+                    return NotFound("Diretor não encontrados");
+                }
+                var diretorOutputGetByIdDto = new DiretorOutputGetByIdDTO(diretor.Id, diretor.Nome, diretor.Email);
+                return Ok(diretorOutputGetByIdDto);
+
+            }
+            catch (Exception e)
+            {
+                return Conflict(e.Message);
+            }
         }
 
         [HttpPut("{id}")]
         public async Task<ActionResult<DiretorInputPutDTO>> Put(long id, [FromBody] DiretorInputPutDTO diretorInputPutDto)
         {
-            if (id == 0) //TEMPORÁRIO
+            try
             {
-                return NotFound("Id do diretor não pode ser 0.");
-            }
-            if (diretorInputPutDto.Nome == "")
-            {
-                return NotFound("O nome do diretor é obrigatório.");
-            }
-            else if (diretorInputPutDto.Email == "")
-            {
-                return NotFound("O email do diretor é obrigatório.");
-            }
+                if (id == 0) //TEMPORÁRIO
+                {
+                    return NotFound("Id do diretor não pode ser 0.");
+                }
+                if (diretorInputPutDto.Nome == "")
+                {
+                    return NotFound("O nome do diretor é obrigatório.");
+                }
+                else if (diretorInputPutDto.Email == "")
+                {
+                    return NotFound("O email do diretor é obrigatório.");
+                }
 
-            var diretor = new Diretor(diretorInputPutDto.Nome, diretorInputPutDto.Email);
-            diretor.Id = id;
-            _context.Diretores.Update(diretor);
-            await _context.SaveChangesAsync();
-            var diretorOutputDto = new DiretorOutputPutDTO(diretor.Id, diretor.Nome, diretor.Email);
+                var diretor = new Diretor(diretorInputPutDto.Nome, diretorInputPutDto.Email);
+                diretor.Id = id;
+                _context.Diretores.Update(diretor);
+                await _context.SaveChangesAsync();
+                var diretorOutputDto = new DiretorOutputPutDTO(diretor.Id, diretor.Nome, diretor.Email);
 
-            return Ok(diretorOutputDto);
+                return Ok(diretorOutputDto);
+            }
+            catch (Exception e)
+            {
+                return Conflict(e.Message);
+            }
         }
 
         [HttpDelete("{id}")]
         public async Task<ActionResult<Diretor>> Delete(long id)
         {
-            var diretor = await _context.Diretores.FirstOrDefaultAsync(diretor => diretor.Id == id);
-
-
-            if (id == 0) //TEMPORÁRIO
+            try
             {
-                return NotFound("Id do diretor não pode ser 0.");
+                var diretor = await _context.Diretores.FirstOrDefaultAsync(diretor => diretor.Id == id);
+
+
+                if (id == 0) //TEMPORÁRIO
+                {
+                    return NotFound("Id do diretor não pode ser 0.");
+                }
+                if (diretor == null)
+                {
+                    return NotFound("Diretor não existe.");
+                }
+
+                _context.Remove(diretor);
+                await _context.SaveChangesAsync();
+
+                return Ok(diretor);
             }
-            if (diretor == null)
+            catch (Exception e)
             {
-                return NotFound("Diretor não existe.");
+                return Conflict(e.Message);
             }
-
-            _context.Remove(diretor);
-            await _context.SaveChangesAsync();
-
-            return Ok(diretor);
         }
-
-
-
     }
 }
