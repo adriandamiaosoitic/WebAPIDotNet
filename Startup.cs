@@ -12,6 +12,8 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using System.Reflection;
+using System.IO;
 
 namespace WebAPIDotNet
 {
@@ -32,9 +34,16 @@ namespace WebAPIDotNet
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "WebAPIDotNet", Version = "v1" });
+
+                // Set the comments path for the Swagger JSON and UI.
+                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+                c.IncludeXmlComments(xmlPath);
             });
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlite("Data Source=myapi.db"));
+
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
