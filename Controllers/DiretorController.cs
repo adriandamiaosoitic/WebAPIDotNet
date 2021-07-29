@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using WebAPIDotNET5.DTOs;
+using WebAPIDotNet.DTOs;
 
-namespace WebAPIDotNET5.Controllers
+namespace WebAPIDotNet.Controllers
 {
 
     [ApiController] // Diz que a classe Controller é uma API   

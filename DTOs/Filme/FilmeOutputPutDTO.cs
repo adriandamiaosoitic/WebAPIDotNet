@@ -1,4 +1,4 @@
-namespace WebAPIDotNET5.DTOs
+namespace WebAPIDotNet.DTOs
 {
     public class FilmeOutputPutDTO
     {
