@@ -15,6 +15,7 @@ using Microsoft.OpenApi.Models;
 using System.Reflection;
 using System.IO;
 using FluentValidation.AspNetCore;
+using WebAPIDotNet.Services;
 
 namespace WebAPIDotNet
 {
@@ -47,6 +48,7 @@ namespace WebAPIDotNet
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlite("Data Source=myapi.db"));
 
+            services.AddScoped<DiretorService>();
 
         }
 
