@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using WebAPIDotNet.DTOs;
+using WebAPIDotNET5.DTOs;
 
-namespace WebAPIDotNet.Controllers
+namespace WebAPIDotNET5.Controllers
 {
 
     [ApiController] // Diz que a classe Controller é uma API  
-    [Route("api/[controller]")] // Rota do recurso
+    [Route("[controller]")] // Rota do recurso
     public class FilmeController : ControllerBase
     {
         private readonly ApplicationDbContext _context;

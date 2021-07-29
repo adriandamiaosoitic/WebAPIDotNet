@@ -1,4 +1,4 @@
-namespace WebAPIDotNet.DTOs
+namespace WebAPIDotNET5.DTOs
 {
     public class DiretorOutputPostDTO
     {
