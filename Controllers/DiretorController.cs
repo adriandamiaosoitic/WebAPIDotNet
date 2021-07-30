@@ -1,10 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using WebAPIDotNet.DTOs;
-using WebAPIDotNet.Services;
 
 namespace WebAPIDotNet.Controllers
 {
@@ -13,12 +12,9 @@ namespace WebAPIDotNet.Controllers
     [Route("[controller]")] // Rota do recurso
     public class DiretorController : ControllerBase
     {
-        private readonly ApplicationDbContext _context;
-        private readonly DiretorService _diretorService; //Contexto intermediario para comunicação com o banco
-        public DiretorController(ApplicationDbContext context,
-                                 DiretorService diretorService) // Injeção de dependência -> pra construir um controller é necessario uma classe de contexto
+        private readonly IDiretorService _diretorService; //Contexto intermediario para comunicação com o banco
+        public DiretorController(IDiretorService diretorService) // Injeção de dependência -> pra construir um controller é necessario uma classe de contexto
         {
-            _context = context;
             _diretorService = diretorService;
         }
 
@@ -52,9 +48,9 @@ namespace WebAPIDotNet.Controllers
         /// <response code="400">Erro de validação.</response> //Adicionar 409 futuramente 
         /// <response code="500">A solicitação não foi concluída devido a um erro interno no lado do servidor.</response>
         [HttpGet]
-        public async Task<ActionResult<List<DiretorOutputGetAllDTO>>> Get() //Toda vez que for async tem que ter uma Task
+        public async Task<ActionResult<DiretorListOutputGetAllDTO>> Get(CancellationToken cancellationToken, int pagina = 1, int limite = 10) //Toda vez que for async tem que ter uma Task
         {
-            return await _diretorService.BuscaTodos();
+            return await _diretorService.BuscaPorPaginaAsync(pagina, limite, cancellationToken);
         }
 
         /// <summary>
