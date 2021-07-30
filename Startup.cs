@@ -48,8 +48,8 @@ namespace WebAPIDotNet
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlite("Data Source=myapi.db"));
 
-            services.AddScoped<DiretorService>();
-            services.AddScoped<FilmeService>();
+            services.AddScoped<IDiretorService, DiretorService>();
+            services.AddScoped<IFilmeService, FilmeService>();
 
         }
 
