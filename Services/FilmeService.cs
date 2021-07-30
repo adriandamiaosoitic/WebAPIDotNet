@@ -1,15 +1,12 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using WebAPIDotNet.DTOs;
-using WebAPIDotNet.Extensions;
 
 namespace WebAPIDotNet.Services
 {
-    public class FilmeService : IFilmeService // Interface -> Boas práticas
+    public class FilmeService
     {
         private readonly ApplicationDbContext _context;
 
@@ -29,29 +26,20 @@ namespace WebAPIDotNet.Services
             return filmeOutputPostDto;
         }
 
-        public async Task<FilmeListOutputGetAllDTO> BuscaPorPaginaAsync(int pagina, int limite, CancellationToken cancellationToken)
+        public async Task<List<FilmeOutputGetAllDTO>> BuscaTodos()
         {
-            var pagedModel = await _context.Filmes
-                     .AsNoTracking()
-                     .OrderBy(p => p.Id)
-                     .PaginateAsync(pagina, limite, cancellationToken);
-
-            if (pagina > pagedModel.TotalPaginas)
+            var filmes = await _context.Filmes.ToListAsync();
+            if (filmes == null)
             {
-                throw new Exception("Não existem registros nessa página"); //Temporário
+                throw new Exception("Filmes não encontrados!");
             }
-            if (!pagedModel.Itens.Any())
+            var filmeOutputGetAllDto = new List<FilmeOutputGetAllDTO>();
+            foreach (Filme filme in filmes)
             {
-                throw new Exception("Não existem filmes cadastrados!");
+                filmeOutputGetAllDto.Add(new FilmeOutputGetAllDTO(filme.Id, filme.Titulo));
             }
 
-            return new FilmeListOutputGetAllDTO
-            {
-                PaginaAtual = pagedModel.PaginaAtual,
-                TotalPaginas = pagedModel.TotalPaginas,
-                TotalItens = pagedModel.TotalItens,
-                Itens = pagedModel.Itens.Select(filme => new FilmeOutputGetAllDTO(filme.Id, filme.Titulo)).ToList()
-            };
+            return filmeOutputGetAllDto;
         }
 
         public async Task<FilmeOutputGetByIdDTO> BuscaPorId(long id)
